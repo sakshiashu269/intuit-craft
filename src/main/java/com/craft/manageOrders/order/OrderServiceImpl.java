@@ -8,6 +8,7 @@ import com.craft.manageOrders.payment.PaymentService;
 import com.craft.manageOrders.product.ProductService;
 import com.craft.manageOrders.user.UserRepository;
 import com.craft.manageOrders.user.User;
+import com.craft.manageOrders.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +24,15 @@ public class OrderServiceImpl implements OrderService {
     private final ProductService productService;
     private final UserRepository userRepository;
     private final OrderProducer orderProducer;
+    private final UserService userService;
 
     @Autowired
-    public OrderServiceImpl(PaymentService paymentService, ProductService productService, UserRepository userRepository, OrderProducer orderProducer) {
+    public OrderServiceImpl(PaymentService paymentService, ProductService productService, UserRepository userRepository, OrderProducer orderProducer, UserService userService) {
         this.paymentService = paymentService;
         this.productService = productService;
         this.userRepository = userRepository;
         this.orderProducer = orderProducer;
+        this.userService = userService;
     }
 
     @Override
@@ -53,16 +56,8 @@ public class OrderServiceImpl implements OrderService {
         boolean paymentSuccess = paymentService.processPayment(order.getBillAmount(), PaymentMode.CASH);
 
         if(paymentSuccess) {
-            //Update user orders
-            List<String> userOrders = user.getOrders();
-            userOrders.add(orderId);
-            user.setOrders(userOrders);
-            //Update user Cart
-            user.getCart().emptyCart();
-
-            //ToDo Update user order and cart in DB
+            userService.updateUserOrders(userId, orderId);
             orderProducer.processOrder(order);
-
         }
         else{
             productService.increaseCountInProductStock(productVsUnits);
