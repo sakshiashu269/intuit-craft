@@ -1,4 +1,4 @@
-package com.craft.manageOrders.kafka;
+package com.craft.manageOrders.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
