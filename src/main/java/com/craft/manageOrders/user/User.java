@@ -15,6 +15,9 @@ public class User {
     private Cart cart;
     private List<String> orders;
 
+    public User() {
+    }
+
     public String getUserId() {
         return userId;
     }

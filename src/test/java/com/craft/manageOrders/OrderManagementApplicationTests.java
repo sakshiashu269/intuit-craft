@@ -2,9 +2,11 @@ package com.craft.manageOrders;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-class OrderManagementApplicationTests {
+@ActiveProfiles("test")
+public class OrderManagementApplicationTests {
 
 	@Test
 	void contextLoads() {

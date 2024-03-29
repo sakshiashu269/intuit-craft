@@ -11,6 +11,10 @@ public class Product {
     private double unitPrice;
     private float productStock;
     private ProductAvailability productAvailability;
+
+    public Product() {
+    }
+
     public ProductAvailability getProductAvailability() {
         return productAvailability;
     }

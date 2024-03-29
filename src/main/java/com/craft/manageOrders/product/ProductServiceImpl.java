@@ -1,5 +1,6 @@
 package com.craft.manageOrders.product;
 
+import com.craft.manageOrders.exceptions.ProductNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class ProductServiceImpl implements ProductService {
             logger.info("Product with productId as " + productId + " has price " + product.getUnitPrice());
             return product.getUnitPrice();
         } else {
-            throw new RuntimeException("Product Not Found");
+            throw new ProductNotFoundException("Product Not Found");
         }
     }
 
@@ -42,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
 
             Product product = productRepository.findByProductId(productId);
             if (product == null || product.getProductStock() < quantity) {
-                return false; // Product not found or insufficient stock
+                throw new ProductNotFoundException("Product not Available " + product);
             }
             // Update product stock
             product.setProductStock(product.getProductStock() - quantity);

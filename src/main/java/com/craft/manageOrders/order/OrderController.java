@@ -37,8 +37,9 @@ public class OrderController {
 
     @PostMapping("/placeOrder/{userId}")
     public ResponseEntity<String> placeOrder(@PathVariable String userId) {
-        boolean orderPlaced = orderService.createOrderFromCart(userId);
-        if (orderPlaced) {
+        String orderId = orderService.createOrderFromCart(userId);
+        if (orderId != null) {
+            System.out.println("Order is placed successfully with orderId: " + orderId);
             return new ResponseEntity<>("Order placed successfully", HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>("Failed to place order", HttpStatus.INTERNAL_SERVER_ERROR);

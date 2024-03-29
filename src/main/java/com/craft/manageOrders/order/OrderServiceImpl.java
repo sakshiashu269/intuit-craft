@@ -1,10 +1,12 @@
 package com.craft.manageOrders.order;
 
+import com.craft.manageOrders.exceptions.CartEmptyException;
+import com.craft.manageOrders.exceptions.PaymentProcessingException;
+import com.craft.manageOrders.exceptions.UserNotFoundException;
 import com.craft.manageOrders.payment.PaymentMode;
 import com.craft.manageOrders.payment.PaymentService;
 import com.craft.manageOrders.product.ProductService;
 import com.craft.manageOrders.user.UserRepository;
-//import com.craft.manageOrders.invoice.InvoiceService;
 import com.craft.manageOrders.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,28 +18,30 @@ import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
-    private final OrderRepository orderRepository;
+
     private final PaymentService paymentService;
     private final ProductService productService;
     private final UserRepository userRepository;
+    private final OrderProducer orderProducer;
+
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, PaymentService paymentService, ProductService productService, UserRepository userRepository) {
-        this.orderRepository = orderRepository;
+    public OrderServiceImpl(PaymentService paymentService, ProductService productService, UserRepository userRepository, OrderProducer orderProducer) {
         this.paymentService = paymentService;
         this.productService = productService;
         this.userRepository = userRepository;
+        this.orderProducer = orderProducer;
     }
 
     @Override
-    public boolean createOrderFromCart(String userId) {
+    public String createOrderFromCart(String userId) {
         User user = userRepository.findByUserId(userId);
         if (user == null) {
-            throw new RuntimeException("User Not Found: " + userId);
+            throw new UserNotFoundException("User Not Found: " + userId);
         }
         Map<String, Integer> productVsUnits = user.getCart().getProductVsUnits();
 
         if (productVsUnits.isEmpty()) {
-            throw new RuntimeException("Cart Empty, Please select Products");
+            throw new CartEmptyException("Cart Empty, Please select Products");
         }
 
         productService.decreaseCountFromProductStock(productVsUnits);
@@ -48,21 +52,23 @@ public class OrderServiceImpl implements OrderService {
          //Call payment service to process payment
         boolean paymentSuccess = paymentService.processPayment(order.getBillAmount(), PaymentMode.CASH);
 
-        //ToDo: Add order in orderlist of user
-        List<String> userOrders = user.getOrders();
-        userOrders.add(orderId);
-        user.setOrders(userOrders);
-
         if(paymentSuccess) {
+            //Update user orders
+            List<String> userOrders = user.getOrders();
+            userOrders.add(orderId);
+            user.setOrders(userOrders);
+            //Update user Cart
             user.getCart().emptyCart();
-            orderRepository.save(order);
-            //ToDo: Create Invoice
+
+            //ToDo Update user order and cart in DB
+            orderProducer.processOrder(order);
+
         }
         else{
             productService.increaseCountInProductStock(productVsUnits);
-            throw new RuntimeException("Unable to make payment, please try again!");
+            throw new PaymentProcessingException("Unable to make payment, please try again!");
         }
-        return true;
+        return orderId;
     }
 }
 

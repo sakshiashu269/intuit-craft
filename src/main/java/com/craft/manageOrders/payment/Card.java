@@ -4,7 +4,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Card implements Payment {
-    public void pay() {
+    @Override
+    public boolean pay(double amount) {
         System.out.println("User has paid using card");
+        return true;
     }
 }

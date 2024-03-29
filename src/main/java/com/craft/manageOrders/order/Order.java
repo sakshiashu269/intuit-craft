@@ -1,12 +1,11 @@
 package com.craft.manageOrders.order;
 
 import com.craft.manageOrders.Address;
-//import com.craft.manageOrders.invoice.Invoice;
+import com.craft.manageOrders.invoice.Invoice;
 import com.craft.manageOrders.payment.PaymentMode;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,15 +16,18 @@ public class Order {
     private Map<String, Integer> productVsUnits = new HashMap<>();
     private Address address;
     private double billAmount;
-//    private Invoice invoice;
+    private Invoice invoice;
     private OrderStatus orderStatus;
     private LocalDate orderDate;
     private PaymentMode paymentMode;
     public Order() {
     }
-
-
-
+    public Invoice getInvoice() {
+        return invoice;
+    }
+    public void setInvoice(Invoice invoice) {
+        this.invoice = invoice;
+    }
     public PaymentMode getPaymentMode() {
         return paymentMode;
     }
@@ -73,15 +75,6 @@ public class Order {
     public void setBillAmount(double billAmount) {
         this.billAmount = billAmount;
     }
-
-//    public Invoice getInvoice() {
-//        return invoice;
-//    }
-
-//    public void setInvoice(Invoice invoice) {
-//        this.invoice = invoice;
-//    }
-
     public OrderStatus getOrderStatus() {
         return orderStatus;
     }

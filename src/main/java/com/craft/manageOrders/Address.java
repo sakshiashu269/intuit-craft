@@ -1,9 +1,10 @@
 package com.craft.manageOrders;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Component;
 
-@Document(collection = "Address")
 public class Address {
     private String addressLine1;
     private String addressLine2;
@@ -11,6 +12,9 @@ public class Address {
     private String state;
     private String pinCode;
     private String country;
+
+    public Address() {
+    }
 
     public Address(String addressLine1, String addressLine2, String city, String state, String pinCode, String country) {
         this.addressLine1 = addressLine1;
