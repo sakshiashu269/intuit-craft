@@ -4,6 +4,7 @@ import com.craft.manageOrders.exceptions.ProductNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
+@Cacheable(value = "productPrices", key = "#productId")
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -26,6 +28,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable("productPrices")
     public double getPriceQuote(String productId) {
         Product product = productRepository.findByProductId(productId);
         if (product != null) {
