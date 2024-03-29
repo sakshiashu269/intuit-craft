@@ -10,14 +10,13 @@ import java.util.List;
 @Document(collection = "User")
 public class User {
     private String userId;
+    private String email;
     private String userName;
     private Address address;
     private Cart cart;
     private List<String> orders;
-
     public User() {
     }
-
     public String getUserId() {
         return userId;
     }
@@ -58,8 +57,15 @@ public class User {
         this.orders = orders;
     }
 
-    public User(String userId, String userName, Address address, Cart cart, List<String> orders) {
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public User(String userId, String email, String userName, Address address, Cart cart, List<String> orders) {
         this.userId = userId;
+        this.email = email;
         this.userName = userName;
         this.address = address;
         this.cart = cart;
