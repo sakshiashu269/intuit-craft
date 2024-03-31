@@ -15,6 +15,14 @@ public class Product {
     public Product() {
     }
 
+    public Product(String productId, String productName, double unitPrice, float productStock, ProductAvailability productAvailability) {
+        this.productId = productId;
+        this.productName = productName;
+        this.unitPrice = unitPrice;
+        this.productStock = productStock;
+        this.productAvailability = productAvailability;
+    }
+
     public ProductAvailability getProductAvailability() {
         return productAvailability;
     }

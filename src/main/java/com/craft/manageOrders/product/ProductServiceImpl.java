@@ -5,10 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -18,13 +14,13 @@ import java.util.Map;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final MongoTemplate mongoTemplate;
+    private final ProductRepositoryCustom productRepositoryCustom;
     Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, MongoTemplate mongoTemplate) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductRepositoryCustom productRepositoryCustom) {
         this.productRepository = productRepository;
-        this.mongoTemplate = mongoTemplate;
+        this.productRepositoryCustom = productRepositoryCustom;
     }
 
     @Override
@@ -35,36 +31,26 @@ public class ProductServiceImpl implements ProductService {
             logger.info("Product with productId as " + productId + " has price " + product.getUnitPrice());
             return product.getUnitPrice();
         } else {
+            logger.error("Product with productId as " + productId + " was not found");
             throw new ProductNotFoundException("Product Not Found");
         }
     }
 
-    public boolean decreaseCountFromProductStock(Map<String, Integer> productVsUnits){
+    public void decreaseCountFromProductStock(Map<String, Integer> productVsUnits){
         for (Map.Entry<String, Integer> entry : productVsUnits.entrySet()) {
             String productId = entry.getKey();
             int quantity = entry.getValue();
 
             Product product = productRepository.findByProductId(productId);
             if (product == null || product.getProductStock() < quantity) {
+                logger.error("Product is not available");
                 throw new ProductNotFoundException("Product not Available " + product);
             }
-            // Update product stock
-            product.setProductStock(product.getProductStock() - quantity);
             if(product.getProductStock() <= 0){
-                product.setProductAvailability(ProductAvailability.OUT_OF_STOCK);
-                mongoTemplate.updateFirst(
-                        Query.query(Criteria.where("productId").is(productId)),
-                        new Update().set("productAvailability", ProductAvailability.OUT_OF_STOCK),
-                        Product.class
-                );
+                productRepositoryCustom.updateProductAvailability(productId, ProductAvailability.OUT_OF_STOCK);
             }
-            mongoTemplate.updateFirst(
-                    Query.query(Criteria.where("productId").is(productId)),
-                    new Update().inc("productStock", -quantity),
-                    Product.class
-            );
+            productRepositoryCustom.updateProductStock(productId, -quantity);
         }
-        return true;
     }
 
     public void increaseCountInProductStock(Map<String, Integer> productVsUnits){
@@ -74,23 +60,13 @@ public class ProductServiceImpl implements ProductService {
 
             Product product = productRepository.findByProductId(productId);
             if (product == null) {
-                return; // Product not found or insufficient stock
+                logger.error("Product with productId as " + productId + " was not found");
+                throw new ProductNotFoundException("Product Not Found");
             }
-            // Update product stock
-            product.setProductStock(product.getProductStock() + quantity);
             if(product.getProductStock() > 0){
-                product.setProductAvailability(ProductAvailability.IN_STOCK);
-                mongoTemplate.updateFirst(
-                        Query.query(Criteria.where("productId").is(productId)),
-                        new Update().set("productAvailability", ProductAvailability.IN_STOCK),
-                        Product.class
-                );
+                productRepositoryCustom.updateProductAvailability(productId, ProductAvailability.IN_STOCK);
             }
-            mongoTemplate.updateFirst(
-                    Query.query(Criteria.where("productId").is(productId)),
-                    new Update().inc("productStock", quantity),
-                    Product.class
-            );
+            productRepositoryCustom.updateProductStock(productId, quantity);
         }
     }
 }

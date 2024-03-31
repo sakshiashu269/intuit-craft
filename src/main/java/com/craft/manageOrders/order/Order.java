@@ -1,6 +1,6 @@
 package com.craft.manageOrders.order;
 
-import com.craft.manageOrders.Address;
+import com.craft.manageOrders.utility.Address;
 import com.craft.manageOrders.invoice.Invoice;
 import com.craft.manageOrders.payment.PaymentMode;
 import org.springframework.data.mongodb.core.mapping.Document;

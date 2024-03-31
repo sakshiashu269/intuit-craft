@@ -1,4 +1,4 @@
-package com.craft.manageOrders;
+package com.craft.manageOrders.utility;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
