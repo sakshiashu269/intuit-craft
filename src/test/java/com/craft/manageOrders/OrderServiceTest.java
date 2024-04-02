@@ -1,4 +1,4 @@
-package com.craft.manageOrders.repository;
+package com.craft.manageOrders;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -54,6 +54,7 @@ public class OrderServiceTest {
     void testCreateOrderFromCart_Success() throws MessageQueueFailureException {
         // Mock user, cart, and productVsUnits
         User user = new User();
+        user.setUserId("testUser");
         Address address = new Address();
         address.setAddressLine1("123 Main St");
         user.setAddress(address);
@@ -63,7 +64,7 @@ public class OrderServiceTest {
         cart.setProductVsUnits(productVsUnits);
         user.setCart(cart);
 
-        when(userRepository.findByUserId("testUser")).thenReturn(user);
+        when(userService.findUser("testUser")).thenReturn(user);
         when(paymentService.processPayment(anyDouble(), eq(PaymentMode.CASH))).thenReturn(true);
 
         // Perform the method call
@@ -75,7 +76,8 @@ public class OrderServiceTest {
 
         // Verify interactions with other services
         verify(productService).decreaseCountFromProductStock(productVsUnits);
-        verify(userService).updateUserOrders("testUser", orderId);
+        verify(paymentService).processPayment(anyDouble(), eq(PaymentMode.CASH));
+        verify(userService).findUser(anyString());
         verify(orderProducer).processOrder(any(Order.class));
     }
 
@@ -90,7 +92,7 @@ public class OrderServiceTest {
 
         // Verify no interactions with other services
         verify(productService, times(0)).decreaseCountFromProductStock(anyMap());
-        verify(userService, times(0)).updateUserOrders(anyString(), anyString());
+        verify(userService, times(0)).updateUserOrders(any(Order.class));
         verify(orderProducer, times(0)).processOrder(any(Order.class));
 
     }

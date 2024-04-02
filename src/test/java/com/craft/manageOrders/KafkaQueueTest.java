@@ -1,4 +1,4 @@
-package com.craft.manageOrders.repository;
+package com.craft.manageOrders;
 
 import com.craft.manageOrders.exceptions.MessageQueueFailureException;
 import com.craft.manageOrders.order.Order;
@@ -38,7 +38,6 @@ class KafkaQueueTest {
         try {
             orderProducer.processOrder(order);
         } catch (MessageQueueFailureException e) {
-            // TODO Auto-generated catch block
             Assertions.fail(e.getMessage());
         }
     }

@@ -17,7 +17,7 @@ public class ProductController {
     Logger logger = LoggerFactory.getLogger(ProductController.class);
 
     @GetMapping("/{productId}/price")
-    @Cacheable("productPrices")
+    @Cacheable(value = "productPrices", key = "#productId")
     public ResponseEntity<Double> getPriceForProduct(@PathVariable String productId) {
         try {
             double price = productService.getPriceQuote(productId);

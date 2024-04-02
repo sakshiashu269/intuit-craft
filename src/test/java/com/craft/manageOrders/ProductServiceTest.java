@@ -1,4 +1,4 @@
-package com.craft.manageOrders.repository;
+package com.craft.manageOrders;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

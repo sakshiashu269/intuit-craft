@@ -1,6 +1,7 @@
 package com.craft.manageOrders.order;
 
 import com.craft.manageOrders.exceptions.PaymentProcessingException;
+import com.craft.manageOrders.exceptions.UserNotFoundException;
 import com.craft.manageOrders.payment.PaymentMode;
 import com.craft.manageOrders.payment.PaymentService;
 import com.craft.manageOrders.product.ProductService;
@@ -36,6 +37,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public String createOrderFromCart(String userId) {
         User user = userService.findUser(userId);
+        if (user == null) {
+            throw new UserNotFoundException("User Not Found: " + userId);
+        }
 
         //validating productStock and updating stocks
         Map<String, Integer> productVsUnits = user.getCart().getProductVsUnits();
@@ -49,8 +53,6 @@ public class OrderServiceImpl implements OrderService {
         boolean paymentSuccess = paymentService.processPayment(order.getBillAmount(), PaymentMode.CASH);
 
         if(paymentSuccess) {
-            //updating user's cart
-            userService.updateUserOrders(userId, orderId);
             try{
                 //Queuing the order to process further
                 orderProducer.processOrder(order);
