@@ -11,21 +11,18 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-@Cacheable(value = "productPrices", key = "#productId")
+//@Cacheable(value = "productPrices", key = "#productId")
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductRepositoryCustom productRepositoryCustom;
     Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, ProductRepositoryCustom productRepositoryCustom) {
+    public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.productRepositoryCustom = productRepositoryCustom;
     }
 
     @Override
-    @Cacheable("productPrices")
     public double getPriceQuote(String productId) {
         Product product = productRepository.findByProductId(productId);
         if (product != null) {
@@ -46,14 +43,22 @@ public class ProductServiceImpl implements ProductService {
             int quantity = entry.getValue();
 
             Product product = productRepository.findByProductId(productId);
-            if (product == null || product.getProductStock() < quantity) {
+            float currentQuantity = product.getProductStock();
+            if (product == null || currentQuantity < quantity) {
                 logger.error("Product is not available");
                 throw new ProductNotFoundException("Product not Available " + product);
             }
-            if(product.getProductStock() <= 0){
-                productRepositoryCustom.updateProductAvailability(productId, ProductAvailability.OUT_OF_STOCK);
+            if(currentQuantity <= 0 || currentQuantity-quantity<=0){
+                productRepository.updateProductAvailability(productId, ProductAvailability.OUT_OF_STOCK);
             }
-            productRepositoryCustom.updateProductStock(productId, -quantity);
+            try {
+                productRepository.updateProductStock(productId, currentQuantity-quantity);
+            } catch (Exception e) {
+                // Handle the exception (e.g., log an error message, throw a custom exception)
+                // For example:
+                logger.error("Failed to update product stock for productId: " + productId, e);
+                throw new RuntimeException("Failed to update product stock", e);
+            }
         }
     }
 
@@ -68,9 +73,9 @@ public class ProductServiceImpl implements ProductService {
                 throw new ProductNotFoundException("Product Not Found");
             }
             if(product.getProductStock() > 0){
-                productRepositoryCustom.updateProductAvailability(productId, ProductAvailability.IN_STOCK);
+                productRepository.updateProductAvailability(productId, ProductAvailability.IN_STOCK);
             }
-            productRepositoryCustom.updateProductStock(productId, quantity);
+            productRepository.updateProductStock(productId, quantity);
         }
     }
 }

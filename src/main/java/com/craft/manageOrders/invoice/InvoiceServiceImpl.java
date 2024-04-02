@@ -29,6 +29,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setAddress(order.getAddress());
         invoice.setProductVsUnits(order.getProductVsUnits());
         invoice.setTotalItemPrice(order.getBillAmount());
+        invoice.setFinalBillAmount(order.getBillAmount());
         logger.info("Invoice is generated for invoiceId: "+ invoiceId);
         return invoice;
     }
