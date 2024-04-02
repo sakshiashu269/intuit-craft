@@ -1,9 +1,8 @@
 package com.craft.manageOrders.user;
 
-import com.craft.manageOrders.Address;
-import org.springframework.data.annotation.Id;
+import com.craft.manageOrders.utility.Address;
+import com.craft.manageOrders.cart.Cart;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
@@ -12,6 +11,7 @@ public class User {
     private String userId;
     private String email;
     private String userName;
+    private UserType userType;
     private Address address;
     private Cart cart;
     private List<String> orders;
@@ -63,10 +63,17 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
-    public User(String userId, String email, String userName, Address address, Cart cart, List<String> orders) {
+    public UserType getUserType() {
+        return userType;
+    }
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
+    public User(String userId, String email, String userName, UserType userType, Address address, Cart cart, List<String> orders) {
         this.userId = userId;
         this.email = email;
         this.userName = userName;
+        this.userType = userType;
         this.address = address;
         this.cart = cart;
         this.orders = orders;

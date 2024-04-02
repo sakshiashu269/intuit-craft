@@ -1,6 +1,6 @@
 package com.craft.manageOrders.invoice;
 
-import com.craft.manageOrders.Address;
+import com.craft.manageOrders.utility.Address;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
