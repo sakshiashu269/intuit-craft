@@ -41,14 +41,26 @@ public class OrderController {
 
 
     @PostMapping("/placeOrder/{userId}")
-    public ResponseEntity<String> placeOrder(@PathVariable String userId) throws MessageQueueFailureException {
-        String orderId = orderService.createOrderFromCart(userId);
-        if (orderId != null) {
-            logger.info("Order is placed successfully with orderId: " + orderId);
-            return new ResponseEntity<>("Order placed successfully", HttpStatus.CREATED);
-        } else {
-            logger.error("Failed to place order" + orderId);
-            return new ResponseEntity<>("Failed to place order", HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<String> placeOrder(@PathVariable String userId) {
+        try {
+            String orderId = orderService.createOrderFromCart(userId);
+            if (orderId != null) {
+                logger.info("Order placed successfully with orderId: {}", orderId);
+                return ResponseEntity.status(HttpStatus.CREATED)
+                        .body("Order placed successfully. Order ID: " + orderId);
+            } else {
+                logger.error("Failed to place order for user ID: {}", userId);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Failed to place order. Please try again later.");
+            }
+        } catch (MessageQueueFailureException ex) {
+            logger.error("Failed to place order due to message queue failure for user ID: {}", userId, ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to place order due to an internal error. Please try again later.");
+        } catch (Exception ex) {
+            logger.error("Failed to place order for user ID: {}", userId, ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to place order due to an unexpected error. Please try again later.");
         }
     }
 

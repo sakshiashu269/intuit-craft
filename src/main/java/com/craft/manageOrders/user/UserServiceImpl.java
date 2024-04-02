@@ -16,6 +16,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findUser(String userId) {
+        User user = userRepository.findByUserId(userId);
+        if (user == null) {
+            throw new UserNotFoundException("Failed to fetch user details " + userId);
+        }
+        return user;
+    }
+
+    @Override
     public void updateUserOrders(String userId, String orderId) {
         User user = userRepository.findByUserId(userId);
         if (user != null) {

@@ -1,6 +1,9 @@
 package com.craft.manageOrders.payment;
 
 import com.craft.manageOrders.exceptions.PaymentProcessingException;
+import com.craft.manageOrders.invoice.InvoiceServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
-
     private final PaymentFactory paymentFactory;
+    Logger logger = LoggerFactory.getLogger(PaymentServiceImpl.class);
     @Autowired
     public PaymentServiceImpl(PaymentFactory paymentFactory) {
         this.paymentFactory = paymentFactory;
@@ -19,7 +22,7 @@ public class PaymentServiceImpl implements PaymentService {
     public Boolean processPayment(double paymentAmount, PaymentMode paymentMode) {
         Payment payment = paymentFactory.getPayment(paymentMode);
         if(paymentMode == PaymentMode.CASH){
-            System.out.println("Payment is pending as order is COD, payment amount " + paymentAmount);
+            logger.info("Payment is pending as order is COD, payment amount " + paymentAmount);
             return true;
         }
         boolean isPaymentSuccess = false;
@@ -44,7 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
             }
         }
         if(isPaymentSuccess) {
-            System.out.println("A third party payment service will open up for gateway: " + payment + " and payment is done of payment amount " + paymentAmount);
+            logger.info("A third party payment service will open up for gateway: " + payment + " and payment is done of payment amount " + paymentAmount);
             return true;
         }
         else{

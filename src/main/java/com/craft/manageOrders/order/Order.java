@@ -20,6 +20,7 @@ public class Order {
     private OrderStatus orderStatus;
     private LocalDate orderDate;
     private PaymentMode paymentMode;
+
     public Order() {
     }
     public Invoice getInvoice() {
@@ -91,15 +92,4 @@ public class Order {
         this.orderDate = orderDate;
     }
 
-
-    public Order(String orderId, String userId, Map<String, Integer> productVsUnits, Address address, double billAmount, OrderStatus orderStatus, LocalDate orderDate, PaymentMode paymentMode) {
-        this.orderId = orderId;
-        this.userId = userId;
-        this.productVsUnits = productVsUnits;
-        this.address = address;
-        this.billAmount = billAmount;
-        this.orderStatus = orderStatus;
-        this.orderDate = orderDate;
-        this.paymentMode = paymentMode;
-    }
 }

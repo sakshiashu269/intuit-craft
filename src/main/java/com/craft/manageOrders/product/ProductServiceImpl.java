@@ -1,5 +1,6 @@
 package com.craft.manageOrders.product;
 
+import com.craft.manageOrders.exceptions.CartEmptyException;
 import com.craft.manageOrders.exceptions.ProductNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public void decreaseCountFromProductStock(Map<String, Integer> productVsUnits){
+        if (productVsUnits.isEmpty()) {
+            throw new CartEmptyException("Cart Empty, Please select Products");
+        }
         for (Map.Entry<String, Integer> entry : productVsUnits.entrySet()) {
             String productId = entry.getKey();
             int quantity = entry.getValue();

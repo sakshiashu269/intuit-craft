@@ -20,6 +20,7 @@ public class OrderProducer {
 
     public void processOrder(Order order) throws MessageQueueFailureException {
         try {
+            logger.info("Sending message to Kafka for further processing: " + order.getOrderId());
             kafkaTemplate.send("orderTopic", order);
         } catch (Exception e) {
             logger.error("Send message failed - " + e.getMessage());
